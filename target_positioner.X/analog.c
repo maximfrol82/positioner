@@ -1,0 +1,86 @@
+/*
+ * File:   analog.c
+ * Author: maximfrol82
+ *
+ * Created on 27 ???????? 2021 ?., 19:56
+ */
+
+
+#include "xc.h"
+#include <stdlib.h>
+#include "analog.h"
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+unsigned int DoubleToUINT(double value){
+int variable;
+variable = value;
+value-=variable;
+if(value>=0.5)variable++;
+return variable;
+}//
+////////////////////////////////////////////////////////////////////////////////
+char FIND_KIS(unsigned int data_in){
+char kis_out;
+char define_Lo, define_Hi;
+
+if(data_in > 480 && data_in < 2550)kis_out = 0;
+if(data_in <= 480) {define_Lo = 42;}else{define_Lo = 0;}
+if(data_in >= 2550){define_Hi = 42;}else{define_Hi = 0;}
+if(define_Lo > 0)kis_out = 1;
+if(define_Hi > 0)kis_out = 2;
+return kis_out;
+}
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+char FIND_KIS_FB(unsigned int data_in){
+char kis_out;
+char define_Lo, define_Hi;
+
+if(data_in > 30 && data_in < 4000)kis_out = 0;
+if(data_in <= 30) {define_Lo = 42;}else{define_Lo = 0;}
+if(data_in >= 4000){define_Hi = 42;}else{define_Hi = 0;}
+if(define_Lo > 0)kis_out = 1;
+if(define_Hi > 0)kis_out = 2;
+return kis_out;
+}
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+unsigned int adc_to_int(int dat_adc, int diap, char kis){
+double K_diap, B_diap, dat_tmp;
+const int adc_20mA = 2500;
+const int adc_4mA = 495;
+
+K_diap = (double)diap/(adc_20mA - adc_4mA);
+B_diap = K_diap * adc_4mA;
+dat_tmp =(K_diap * dat_adc) - B_diap;
+if(dat_tmp < 0)dat_tmp = 0;
+if(kis > 0)dat_tmp = 0;
+return DoubleToUINT(dat_tmp);
+}//
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+int define_ANGLE(int R, char KIS, int Rmax, int Rmin){
+double diap, k1, b1, tmp_ang;
+int ANGLE;
+
+diap = (double)abs(Rmax - Rmin);
+k1 = 100.0/diap;
+b1 = k1 * Rmax - 100.0;
+tmp_ang = k1 * R - b1;
+ANGLE = DoubleToUINT(tmp_ang);
+
+if(ANGLE > 100 && ANGLE < 110)ANGLE = 100;
+if(ANGLE > -10 && ANGLE < 0)ANGLE = 0;
+
+if(Rmin > Rmax)ANGLE = 112;
+if(ANGLE >= 110)ANGLE = 113;
+if(ANGLE <= -10)ANGLE = 114;
+if(KIS > 0)ANGLE = 111;
+return ANGLE;
+}//
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
