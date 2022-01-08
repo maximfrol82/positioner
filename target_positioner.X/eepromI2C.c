@@ -1,6 +1,6 @@
 /*
  * File:   eepromI2C.c
- * Author: maxim
+ * Author: maximfrol82
  *
  * Created on September 16, 2021, 9:43 PM
  */
